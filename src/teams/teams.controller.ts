@@ -17,6 +17,11 @@ export class TeamsController {
     return this.teamsService.createTeam(createTeamDto);
   }
 
+  @MessagePattern('teams.find')
+  findTeams(@Payload() teamsPaginationDto: TeamPaginationDto) {
+    return this.teamsService.findAllTeams(teamsPaginationDto);
+  }
+
   @MessagePattern('teams.find.one')
   findOne(@Payload() searching_term: string) {
     return this.teamsService.findOne(searching_term);

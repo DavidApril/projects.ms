@@ -6,7 +6,7 @@ import {
 } from './dto';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Team, TeamMembership } from './entities';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { validate as isUUID } from 'uuid';
@@ -67,16 +67,41 @@ export class TeamsService {
   }
 
   async findAllTeams(teamPaginationDto: TeamPaginationDto) {
-    const { limit = 10, page = 1 } = teamPaginationDto;
+    const { limit = 10, page = 1, user_id, project_id } = teamPaginationDto;
+
     try {
-      const total = await this.teamRepository.count();
+      const user = await firstValueFrom(
+        this.client.send('user.find.one', user_id),
+      );
+
+      if (!user) {
+        throw new RpcException({
+          status: HttpStatus.NOT_FOUND,
+          message: `User with id ${user_id} not found`,
+        });
+      }
+
+      const total = await this.teamMembershipRepository.count({
+        where: {
+          user_id,
+        },
+      });
+
+      const teamMembership = await this.teamMembershipRepository.find({
+        where: {
+          user_id,
+        },
+      });
+
+      const ids = teamMembership.map((membership) => membership.team_id);
+
+      console.log(ids);
+
       return {
         data: await this.teamRepository.find({
           take: limit,
           skip: (page - 1) * limit,
-          relations: {
-            tasks: true,
-          },
+          where: { id: In(ids) },
         }),
         meta: {
           page: page,
