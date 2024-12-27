@@ -1,10 +1,13 @@
+import { Task } from 'src/tasks/entities';
 import { Team } from 'src/teams/entities';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -28,4 +31,7 @@ export class Project {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @ManyToOne(() => Team, (team) => team.projects)
+  team: Team;
 }
