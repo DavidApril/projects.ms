@@ -2,11 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { TaskState } from '../enum';
-import { Type } from 'class-transformer';
+import { Project } from 'src/projects/entities';
+import { Team } from 'src/teams/entities';
 
 @Entity('tasks')
 export class Task {
@@ -25,11 +27,14 @@ export class Task {
   @Column('text')
   project_id: string;
 
+  @Column('text', { nullable: true })
+  team_id: string | null = null;
+
   @Column('boolean', { default: true })
   is_active: boolean;
 
-  @Column('date')
-  due_date: Date;
+  @Column('text')
+  due_date: string;
 
   @Column('enum', { enum: TaskState, default: TaskState.TODO })
   status: TaskState;

@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreateTaskDto, UpdateTaskDto } from './dto';
+import { CreateTaskDto, TaskPaginationDto, UpdateTaskDto } from './dto';
 import { TasksService } from './tasks.service';
 import { PaginationDto } from 'src/shared/dto';
 
@@ -14,15 +14,8 @@ export class TasksController {
   }
 
   @MessagePattern('tasks.find.all')
-  findAll(
-    @Payload()
-    payload: {
-      limit: number;
-      page: number;
-      project_id: string;
-    },
-  ) {
-    return this.tasksService.findAll(payload);
+  findAll(@Payload() taskPaginationDto: TaskPaginationDto) {
+    return this.tasksService.findAll(taskPaginationDto);
   }
 
   @MessagePattern('tasks.find.one')

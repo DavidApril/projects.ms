@@ -1,4 +1,4 @@
-import { CreateTaskDto, UpdateTaskDto } from './dto';
+import { CreateTaskDto, TaskPaginationDto, UpdateTaskDto } from './dto';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/shared/dto';
@@ -50,13 +50,25 @@ export class TasksService {
     }
   }
 
-  async findAll(payload: { limit: number; page: number; project_id: string }) {
-    const { limit = 10, page = 1, project_id } = payload;
-
-    console.log({ payload });
+  async findAll(taskPaginationDto: TaskPaginationDto) {
+    const {
+      limit = 10,
+      page = 1,
+      project_id,
+      due_date,
+      status,
+      team_id,
+    } = taskPaginationDto;
 
     try {
-      const total = await this.taskRepository.count();
+      const total = await this.taskRepository.count({
+        where: {
+          project_id,
+          status,
+          due_date,
+          team_id,
+        },
+      });
       return {
         data: await this.taskRepository.find({
           take: limit,
